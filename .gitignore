@@ -30,3 +30,9 @@
 
 # Debug files
 *.dSYM/
+
+# Debug directories
+Debug/
+
+# ipch directories
+ipch/
