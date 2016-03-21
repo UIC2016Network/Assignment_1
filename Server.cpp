@@ -25,22 +25,26 @@ void accept_conn(void *dummy){
     int ret;  // record the error code
 	char buffer[500] = { '\0' };
 
-	char response[512];
-	char content[] = "<head><head><title>index.html</title></head><body>Helloworld</body>";
-	sprintf(response, "HTTP/1.1 200 OK \r\nContent-Type:text/html\r\nContent-Length: %d\r\n\r\n%s", strlen(content), content);
+	char response[512] = {'\0'};
+	char content[100];
+	FILE* web = fopen("index.html", "r");
+	if (web == NULL) {
+		puts("NULL \n");
+	}
+	sprintf(response, "HTTP/1.1 200 OK \r\nContent-Type:text/html\r\nContent-Length: 200\r\n\r\n");
 	while(1){
 		ret = recv(client,buffer,sizeof(buffer),0);  // get enquiry keyword
-		//buffer[strlen(buffer)-1]='\0';  // use fgets, so the last one need to change \n to \0
-		puts(buffer);
-		/*if(ret==0||ret==-1){
-			printf("Connect failed\n");
-			break;
-		}*/
+		//puts(buffer);
+		while (fgets(content, 100, web) != NULL) {
+			strcat(response, content);
+			//puts(response);
+		}
+		strcat(response, "\0");
 		puts(response);
 		send(client, response, sizeof(response), 0);
 	}
+	fclose(web);
 }
-
 
 
 int main(int argc, char **argv){
