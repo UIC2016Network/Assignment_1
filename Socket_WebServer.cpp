@@ -7,18 +7,9 @@
 // 4. recompile the source.
 
 #include "stdafx.h"
-#include <winsock2.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <process.h>
+
 
 #define DEFAULT_PORT	5019
-
-
-
-char* expand_string(char* source_string, char* target_string);
-
 
 void accept_conn(void *dummy) {
 	SOCKET client = (SOCKET)dummy; // initialize a socket
@@ -27,31 +18,25 @@ void accept_conn(void *dummy) {
 	char* response = "";
 	char content[100];
 	FILE* web = fopen("index.html", "r");
+	ret = recv(client, buffer, sizeof(buffer), 0);  // get enquiry keyword
+	if (ret == SOCKET_ERROR) {
+		fprintf(stderr, "recv() failed with error %d\n", WSAGetLastError());
+		WSACleanup();
+		return;
+	}
 	if (web == NULL) {
 		puts("NULL \n");
-	}
-	response = expand_string(response, "HTTP/1.1 200 OK \r\nContent-Type:text/html\r\nContent-Length: 200\r\n\r\n");
-	while (1) {
-		ret = recv(client, buffer, sizeof(buffer), 0);  // get enquiry keyword
-		while (fgets(content, 100, web) != NULL) {
-			response = expand_string(response, content);
-		}
-		response = expand_string(response, "\0");
-		puts(response);
-		send(client, response, sizeof(response), 0);
+		/*404²¿·Ö*/
 	}
 	fclose(web);
-}
-
-char* expand_string(char *source_string, char* target_string) {
-	int s_str_len = strlen(source_string);
-	int t_str_len = strlen(target_string);
-	char* new_string = (char *)malloc(sizeof(char) * (s_str_len + t_str_len));
-	strcpy(new_string, "");
-	strcat(new_string, source_string);
-	strcat(new_string, target_string);
-	return new_string;
-
+	ret = response_200(client, "index.html");
+	if (ret == -1) {
+		printf("Connection failed\n");
+	}
+	else if (ret == 1) {
+		printf("Connection successful. Now exiting...\n");
+	}
+	closesocket(client);
 }
 
 int main(int argc, char **argv) {
