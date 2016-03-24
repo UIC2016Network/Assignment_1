@@ -21,14 +21,15 @@ void accept_conn(void *dummy) {
 	ret = recv(client, buffer, sizeof(buffer), 0);  // get enquiry keyword
 	if (ret == SOCKET_ERROR) {
 		fprintf(stderr, "recv() failed with error %d\n", WSAGetLastError());
-		WSACleanup();
+        closesocket(client);
 		return;
 	}
-	if (web == NULL) {
+	/*if (web == NULL) {
 		puts("NULL \n");
-		/*404²¿·Ö*/
-	}
-	fclose(web);
+        response_404(client);
+        closesocket(client);
+        return;
+	}*/
 	ret = response_200(client, "index.html");
 	if (ret == -1) {
 		printf("Connection failed\n");
