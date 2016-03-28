@@ -13,9 +13,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <process.h>
+#include <stdlib.h>
+#include <malloc.h>
+#include <time.h>
+#include "split_path.h"
 #include "response_200.h"
 #include "response_404.h"
 #include "expand_string.h"
+#include "return_content_type.h"
 
 
 

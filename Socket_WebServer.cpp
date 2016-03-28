@@ -13,24 +13,42 @@
 
 void accept_conn(void *dummy) {
 	SOCKET client = (SOCKET)dummy; // initialize a socket
+	FILE* web;
 	int ret;  // record the error code
-	char buffer[500] = { '\0' };
+	char buffer[1024] = { '\0' };
 	char* response = "";
 	char content[100];
-	FILE* web = fopen("index.html", "r");
+	char header[200];
+	char* path;
+	char real_path[200];
+	char initialize_header[200];
 	ret = recv(client, buffer, sizeof(buffer), 0);  // get enquiry keyword
 	if (ret == SOCKET_ERROR) {
 		fprintf(stderr, "recv() failed with error %d\n", WSAGetLastError());
-        closesocket(client);
+		closesocket(client);
 		return;
 	}
-	/*if (web == NULL) {
-		puts("NULL \n");
+	for (int i = 0; ; i++) {
+		if (buffer[i] == '\r' || buffer[i] == '\n') {
+			header[i] = '\0';
+			break;
+		}
+		header[i] = buffer[i];
+	}
+	path = split_path(header);
+	if (path[0] == '\0') {
+		path = "index.html";
+	}
+	strcpy(real_path, path);
+	printf("Path: %s\t", real_path);
+	web = fopen(real_path, "r");
+	if (web == NULL) {
         response_404(client);
         closesocket(client);
         return;
-	}*/
-	ret = response_200(client, "index.html");
+	}
+	fclose(web);
+	ret = response_200(client, real_path);
 	if (ret == -1) {
 		printf("Connection failed\n");
 	}
@@ -48,7 +66,6 @@ int main(int argc, char **argv) {
 
 	SOCKET sock, msg_sock;
 	WSADATA wsaData;
-
 	if (WSAStartup(0x202, &wsaData) == SOCKET_ERROR) {
 		// stderr: standard error are printed to the screen.
 		fprintf(stderr, "WSAStartup failed with error %d\n", WSAGetLastError());
