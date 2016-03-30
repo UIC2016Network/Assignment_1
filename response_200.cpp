@@ -40,7 +40,9 @@ int response_200(SOCKET client, char* file_path) {
     response = expand_string(response, content_string, 1);
 	ret = send(client, response, strlen(response), 0);
 	free(response);
-	free(content_string);
+	if (strcmp(content_string, "") != 0) {
+		free(content_string);
+	}
 	response = NULL;
 	content_string = NULL;
 	if (ret == SOCKET_ERROR) {
