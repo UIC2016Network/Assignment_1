@@ -1,8 +1,8 @@
 #include "stdafx.h"
 char* return_content_type(char* filename) {
-	char type[10];
-	char tmpType[10];
-	char return_string[15];
+	char type[50];
+	char tmpType[50];
+	char return_string[150];
 	char type_position = 0;
 	int tmp_position = 0;
 	int file_position = strlen(filename) - 1;

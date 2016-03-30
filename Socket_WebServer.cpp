@@ -15,7 +15,7 @@ void accept_conn(void *dummy) {
 	SOCKET client = (SOCKET)dummy; // initialize a socket
 	FILE* web;
 	int ret;  // record the error code
-	char buffer[1024] = { '\0' };
+	char buffer[4096] = { '\0' };
 	char* response = "";
 	char content[100];
 	char header[200];
@@ -23,11 +23,13 @@ void accept_conn(void *dummy) {
 	char real_path[200];
 	char initialize_header[200];
 	ret = recv(client, buffer, sizeof(buffer), 0);  // get enquiry keyword
-	if (ret == SOCKET_ERROR) {
+	if (ret == SOCKET_ERROR || strcmp(buffer, "") == 0) {
 		fprintf(stderr, "recv() failed with error %d\n", WSAGetLastError());
 		closesocket(client);
 		return;
 	}
+	if (buffer[0] != 'G')
+		return;
 	for (int i = 0; ; i++) {
 		if (buffer[i] == '\r' || buffer[i] == '\n') {
 			header[i] = '\0';
